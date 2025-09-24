@@ -51,6 +51,15 @@ function plugin_pdf_MassiveActions($type) {
    return [];
 }
 
+function plugin_pdf_addMassiveActions($itemtype) {
+   global $PLUGIN_HOOKS;
+   
+   if (isset($PLUGIN_HOOKS['plugin_pdf'][$itemtype])) {
+      return ['PluginPdfCommon'.MassiveAction::CLASS_ACTION_SEPARATOR.'DoIt'
+               => __('Print to pdf', 'pdf')];
+   }
+   return [];
+}
 
 function plugin_pdf_install() {
    global $DB;

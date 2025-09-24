@@ -86,6 +86,10 @@ function plugin_init_pdf() {
 
       // Integration with WebService plugin
       $PLUGIN_HOOKS['webservices']['pdf'] = 'plugin_pdf_registerMethods';
+
+      if (function_exists('Plugin::registerClass')) {
+         $PLUGIN_HOOKS['add_massive_actions']['pdf'] = 'plugin_pdf_addMassiveActions';
+      }
 }
 
 
