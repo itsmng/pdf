@@ -99,7 +99,7 @@ function plugin_version_pdf() {
            'version'        => '2.0.1',
            'author'         => 'Remi Collet, Nelly Mahu-Lasson',
            'license'        => 'GPLv3+',
-           'homepage'       => 'https://forge.glpi-project.org/projects/pdf',
+           'homepage'       => 'https://github.com/itsmng/pdf',
            'minGlpiVersion' => '9.5',
            'requirements'   => ['glpi' => ['min' => '9.5',
                                            'max' => '9.6']]];
