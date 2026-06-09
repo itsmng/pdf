@@ -32,11 +32,60 @@
 define ('K_PATH_IMAGES', Plugin::getPhpDir('pdf').'/pics/');
 
 
+class PluginPdfTCPDF extends TCPDF {
+
+   /**
+    * Render the page header.
+    *
+    * @see TCPDF::Header()
+   **/
+   public function Header() {
+
+      $headerfont = $this->getHeaderFont();
+      $headerdata = $this->getHeaderData();
+      $logo_width = $headerdata['logo_width'];
+      $this->y = $this->header_margin;
+
+      if (($headerdata['logo']) && ($headerdata['logo'] != K_BLANK_IMAGE)) {
+         $this->Image(
+            K_PATH_IMAGES.$headerdata['logo'],
+            $this->original_lMargin,
+            $this->header_margin,
+            $logo_width,
+            PluginPdfSimplePDF::HEADER_LOGO_HEIGHT
+         );
+         $imgy = $this->getImageRBY();
+      } else {
+         $imgy = $this->y;
+      }
+
+      $cell_height = $this->getCellHeight($headerfont[2] / $this->k);
+      $header_x = $this->original_lMargin + ($logo_width * 1.1);
+      $cw = $this->w - $this->original_lMargin - $this->original_rMargin - ($logo_width * 1.1);
+
+      $this->setTextColorArray($this->header_text_color);
+      $this->setFont($headerfont[0], 'B', $headerfont[2] + 1);
+      $this->setXY($header_x, $this->header_margin);
+      $this->Cell($cw, $cell_height, $headerdata['title'], 0, 1, '', 0, '', 0);
+
+      $this->setLineStyle(['width' => 0.85 / $this->k, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => $headerdata['line_color']]);
+      $this->setY((2.835 / $this->k) + max($imgy, $this->y));
+      $this->setX($this->original_lMargin);
+      $this->Cell(($this->w - $this->original_lMargin - $this->original_rMargin), 0, '', 'T', 0, 'C');
+   }
+}
+
+
 class PluginPdfSimplePDF {
 
    // Page orientation
    const PORTRAIT  = 'P';
    const LANDSCAPE = 'L';
+
+   // Header logo sizing
+   const HEADER_LOGO_HEIGHT     = 8.5;
+   const HEADER_LOGO_MAX_WIDTH  = 60;
+   const HEADER_LOGO_WIDTH      = 15;
 
    // Cell alignment
    const LEFT   = 'L';
@@ -74,7 +123,7 @@ class PluginPdfSimplePDF {
       }
       $format = strtoupper($format);
 
-      $pdf = new TCPDF($orient, 'mm', $format, true, 'UTF-8', false);
+      $pdf = new PluginPdfTCPDF($orient, 'mm', $format, true, 'UTF-8', false);
 
       $pdf->SetCreator('GLPI');
       $pdf->SetAuthor('GLPI');
@@ -125,12 +174,21 @@ class PluginPdfSimplePDF {
          case "0.85.3" :
          case "0.85.4" :
          case "0.85.5" :
-            $this->pdf->SetHeaderData('fd_logo.jpg', 15, $msg, '');
+            $logo = 'fd_logo.jpg';
             break;
 
          default :
-            $this->pdf->SetHeaderData('fd_logo.png', 15, $msg, '');
+            $logo = 'fd_logo.png';
       }
+      $logo_width = self::HEADER_LOGO_WIDTH;
+      $logo_reference = GLPI_ROOT.'/pics/fd_logo.png';
+      if ($logo == 'fd_logo.png' && file_exists($logo_reference)) {
+         $size = @getimagesize($logo_reference);
+         if ($size !== false && !empty($size[0]) && !empty($size[1])) {
+            $logo_width = min(self::HEADER_LOGO_MAX_WIDTH, self::HEADER_LOGO_HEIGHT * $size[0] / $size[1]);
+         }
+      }
+      $this->pdf->SetHeaderData($logo, $logo_width, $msg, '');
    }
 
 
