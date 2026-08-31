@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 # Variables
-NAME = pd
+NAME = pdf
 VERSION = CHANGEVERSION
 
 %:
